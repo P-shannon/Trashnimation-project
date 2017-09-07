@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	body{
+		margin:0;
+		background:yellow;
+	}
+	img{
+		max-width:100%;max-height:100%;
+	}
+	#aniContainer{
+		position:relative;
+		width:100vw;height:100vh;
+		background:url("images/background.jpg");
+		background-position:bottom;
+		background-position-x:0px;
+		background-size: contain; 
+		background-repeat: repeat-x;
+	}
+	#animation1{
+		position:absolute;
+		width:100px;height:100px;
+		bottom:40px;
+		left:20px;
+	}
+	#animation2{
+		position:absolute;
+		width:150px;height:75px;
+		right:-200px;
+		bottom:28px;
+		-webkit-transform: rotate(0deg);
+	}
+	#button{
+		position:absolute;
+		z-index:5000000;
+		display:inline-block;
+		border:2px solid black;
+		background:orange;
+		color:black;
+	}
+	#button:active{
+		background:green;
+	}
+</style>
+	<title></title>
+</head>
+<body>
+<div id="aniContainer">
+	<div id="animation1"><img src="images/trashbag.png"></div>
+	<div id="animation2"><img src="images/rat.png"></div>
+	<div id="button" onclick="move()">launch</div>
+</div>
+
+<audio id="boomSound" src="sounds/boom.ogg"></audio>
+<audio id="crackSound" src="sounds/break.mp3"></audio>
+
+<script type="text/javascript">
+//Global Variables, used in all functions
+var id = null;
+var bid = null;
+var uid = null;
+var rid = null;
+var originX = 20;
+var originY = 40;
+var posX = 0;
+var posY = 0;
+var posBX = 0;
+var posRX = -200;
+var posRX2 = 340;
+var posRY = 40;
+var i = 0;
+var n = 0;
+var x = 0;
+var elem = document.getElementById("animation1");
+var rat = document.getElementById("animation2");
+var container = document.getElementById("aniContainer");
+var boom = 0;
+
+function play(sound){
+	var player = document.getElementById(sound);
+	player.currentTime = 0;
+	player.play();
+}
+
+function explosion(){
+	container.innerHTML+="<img id='boom' style='position:absolute; left: 890px; bottom: -10px;'>";
+	play('boomSound');
+	document.getElementById('boom').src = "images/boom.gif"+"?a="+Math.random();
+	elem = document.getElementById('animation1');
+	container.removeChild(elem);
+	boom = 1;
+}
+
+function move(){
+	clearInterval(id);
+	clearInterval(bid);
+	clearInterval(uid);
+	clearInterval(rid);
+	posX = originX;
+	posY = originY;
+	posRX = -200;
+	posRX2 = 340;
+	posRY = 40;
+	rat=document.getElementById('animation2');
+	rat.style.bottom = "40px";
+	rat.style.right = "-200px";
+	rat.style.WebkitTransform = "rotate(0deg) scale(1,1)";
+	container.style.backgroundPositionX="0px";
+	if (boom == 1){
+		container.removeChild(document.getElementById('boom'));
+		container.innerHTML+="<div id='animation1' style='position:absolute;bottom:40px;left:20px'><img src='images/trashbag.png'>";
+		elem = document.getElementById('animation1');
+		boom=0;
+	}
+	i=0;
+	n=0;
+	x=0;
+	id = setInterval(rightBag,15,elem,10);
+	uid = setInterval(upBag,15,elem,20);
+	bid = setInterval(leftBack,15,container,-40);
+}
+
+function rightBag(obj,speed){
+	if (posX > 920){
+		//clearInterval(id);
+		i=0;
+		//posX = 0;
+		//bid = setInterval(leftBack,15,container,30)
+		rid = setInterval(leftRat,15,rat,15);
+	}
+	else {
+		if(i<25){
+			i+=1;
+		}
+		
+		posX += speed;
+		obj.style.left = posX +"px";
+	}
+}
+
+function upBag(obj,speed){
+	if (posY<originY){
+		clearInterval(uid);
+		clearInterval(bid);
+		clearInterval(id);
+		clearInterval(rid);
+		explosion();
+		rid=setInterval(flyRat,15,rat,40);
+	}
+	else{
+		if (n<200){
+			n+=0.4;
+		}
+		speed -= n;
+		posY += speed;
+		obj.style.bottom = posY +"px";
+	}
+}
+
+function leftBack(obj,speed){
+	posBX += speed;
+	obj.style.backgroundPositionX = posBX + "px";
+}
+
+function leftRat(obj,speed){
+	rat=document.getElementById("animation2");
+	posRX += speed;
+	obj.style.right = posRX +"px";
+}
+
+function flyRat(obj,speed){
+	if (x <= 2000){
+		x += speed;
+		//posRX += speed;
+		posRX2 += speed/4;
+		posRY += speed/4;
+		rat = document.getElementById("animation2");
+		rat.style.WebkitTransform = "rotate("+x+"deg)"+" "+"scale("+x/300+","+x/300+")";
+		rat.style.right = posRX2 + "px";
+		rat.style.bottom = posRY + "px";
+	}
+	else{
+		clearInterval(rid);
+		container.innerHTML+="<img id='crack' src='images/crack.png' style='position:absolute;z-index:50;left:-100px'>"
+		play('crackSound');
+	}
+
+}
+
+
+</script>
+</body>
+</html>
